@@ -1,7 +1,16 @@
+import os
+import sys
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from utils.class_binance_api import BinanceAPI
+
+# Definir ambiente como dev ou prod
+ambiente = "dev"
+
+if ambiente == "dev":
+    sys.path.append(os.path.dirname(os.path.abspath(__name__)))
+
+from utils import BinanceAPI
 
 
 def get_top_cryptos():
@@ -10,7 +19,7 @@ def get_top_cryptos():
     que será utilizado para a atualização do pipeline.
     """
     top_symbols = BinanceAPI().get_top20_symbols()
-    with open("/files/symbols.txt", "w") as f:
+    with open(r"/files/symbols.txt", "w") as f:
         f.write(",".join(top_symbols))
 
 
