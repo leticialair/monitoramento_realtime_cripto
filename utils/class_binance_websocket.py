@@ -13,7 +13,12 @@ class BinanceWebSocket:
         callback_trade: callable,
     ):
         """
-        Inicializa o WebSocket da Binance para monitoramento de Kline (velas), Ticker e Trades.
+        Inicializa o WebSocket da Binance para monitoramento de
+        três tipos de dados: Kline, Ticker e Trades e mantém o
+        WebSocket rodando em uma thread separada.
+
+        Possui inscrição dinâmica automática nos três streams ao
+        abrir a conexão.
 
         Parâmetros:
             symbol:
@@ -23,9 +28,9 @@ class BinanceWebSocket:
             callback_kline:
                 Função de callback para dados de velas (Kline)
             callback_ticker:
-                Função de callback para dados de ticker
+                Função de callback para dados de cotação (Ticker)
             callback_trade:
-                Função de callback para dados de trade
+                Função de callback para dados de negociações individuais (Trade)
         """
         self.symbol = symbol.lower()
         self.interval = interval
