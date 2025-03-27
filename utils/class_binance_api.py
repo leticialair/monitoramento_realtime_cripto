@@ -3,6 +3,10 @@ import requests
 
 
 class BinanceAPI:
+    """
+    Classe para interações com a API Rest da Binance.
+    """
+
     def __init__(self):
         self.url_base = "https://api.binance.com/api/"
 
@@ -19,3 +23,8 @@ class BinanceAPI:
             .tolist()
         )
         return top_symbols
+
+
+if __name__ == "__main__":
+    api = BinanceAPI()
+    print(api.get_top20_symbols())
