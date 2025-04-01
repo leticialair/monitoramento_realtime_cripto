@@ -3,7 +3,7 @@ import json
 
 consumer = KafkaConsumer(
     "cripto-precos",
-    bootstrap_servers="localhost:9092",  # ou 'kafka:9092' se estiver dentro de um container
+    bootstrap_servers="kafka:9092",
     auto_offset_reset="latest",
     enable_auto_commit=True,
     group_id="teste-consumer",

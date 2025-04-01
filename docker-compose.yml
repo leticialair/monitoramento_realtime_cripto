@@ -8,14 +8,12 @@ services:
   kafka:
     image: wurstmeister/kafka:latest
     environment:
-      - KAFKA_ADVERTISED_LISTENER=PLAINTEXT://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT
       - KAFKA_LISTENER_NAMES=PLAINTEXT
-      - KAFKA_LISTENER_PORT=9093
-      - KAFKA_LISTENER_TCP_PORT=9093
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
     ports:
-      - "9093:9093"
+      - "9092:9092"
   
   postgres:
     image: postgres:13
