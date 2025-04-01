@@ -9,8 +9,8 @@ services:
     image: wurstmeister/kafka:latest
     environment:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092  # Adicionando esta linha
       - KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT
-      - KAFKA_LISTENER_NAMES=PLAINTEXT
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
     ports:
       - "9092:9092"
