@@ -1,20 +1,42 @@
-version: '3'
+version: '3.8'
+
 services:
   zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
-    ports:
-      - "2181:2181"
-  
-  kafka:
-    image: wurstmeister/kafka:latest
+    image: confluentinc/cp-zookeeper:latest
     environment:
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092  # Adicionando esta linha
-      - KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - kafka-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
-  
+    networks:
+      - kafka-network
+
+  producer:
+    build: ./kafka-producer
+    depends_on:
+      - kafka
+    networks:
+      - kafka-network
+
+  consumer:
+    build: ./kafka-consumer
+    depends_on:
+      - kafka
+    networks:
+      - kafka-network
+
   postgres:
     image: postgres:13
     environment:
@@ -48,3 +70,7 @@ services:
       - "8081:8081"
     depends_on:
       - kafka
+
+networks:
+  kafka-network:
+    driver: bridge

@@ -1,6 +1,5 @@
 import websocket
 import threading
-import json
 
 
 class BinanceWebSocket:

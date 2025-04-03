@@ -3,13 +3,13 @@ import json
 
 consumer = KafkaConsumer(
     "cripto-precos",
-    bootstrap_servers="localhost:9092",  # TODO: kafka:9092 se for dentro do container
+    bootstrap_servers="kafka:9092",
     auto_offset_reset="earliest",
     enable_auto_commit=True,
-    group_id="teste-consumer",
     value_deserializer=lambda x: json.loads(x.decode("utf-8")),
 )
 
-print("Aguardando mensagens do Kafka...\n")
+print("Consumer iniciado!")
+
 for message in consumer:
-    print(f"Mensagem recebida: {message.value}")
+    print(f"Recebido: {message.value}")
