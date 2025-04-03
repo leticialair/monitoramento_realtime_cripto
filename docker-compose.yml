@@ -2,75 +2,36 @@ version: '3.8'
 
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
-    networks:
-      - kafka-network
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: kafka
     depends_on:
       - zookeeper
+    ports:
+      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    ports:
-      - "9092:9092"
-    networks:
-      - kafka-network
 
   producer:
-    build: ./kafka-producer
+    build: ./producer  # <-- Usa o Dockerfile
+    container_name: producer
     depends_on:
       - kafka
-    networks:
-      - kafka-network
+    restart: unless-stopped  # Recupera automaticamente
 
   consumer:
-    build: ./kafka-consumer
+    build: ./consumer  # <-- Usa o Dockerfile
+    container_name: consumer
     depends_on:
       - kafka
-    networks:
-      - kafka-network
-
-  postgres:
-    image: postgres:13
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: crypto
-    ports:
-      - "5432:5432"
-  
-  airflow:
-    image: apache/airflow:2.4.1
-    environment:
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://user:password@postgres:5432/crypto
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-    depends_on:
-      - postgres
-      - kafka
-
-  spark:
-    image: bitnami/spark:latest
-    environment:
-      - SPARK_MODE=master
-      - SPARK_MASTER_URL=spark://spark:7077
-    ports:
-      - "8081:8081"
-    depends_on:
-      - kafka
-
-networks:
-  kafka-network:
-    driver: bridge
+    restart: unless-stopped
