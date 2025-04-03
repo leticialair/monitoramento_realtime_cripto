@@ -2,8 +2,6 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-RUN pip install websocket-client kafka-python
-
-COPY producer.py .
+RUN pip install kafka-python
 
 CMD ["python", "producer.py"]

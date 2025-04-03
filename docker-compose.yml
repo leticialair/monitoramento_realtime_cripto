@@ -16,22 +16,28 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   producer:
-    build: ./producer  # <-- Usa o Dockerfile
+    build: ./producer
     container_name: producer
     depends_on:
       - kafka
-    restart: unless-stopped  # Recupera automaticamente
+    volumes:
+      - ./producer:/app
+    restart: unless-stopped
 
   consumer:
-    build: ./consumer  # <-- Usa o Dockerfile
+    build: ./consumer
     container_name: consumer
     depends_on:
       - kafka
+    volumes:
+      - ./consumer:/app
     restart: unless-stopped
