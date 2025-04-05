@@ -1,0 +1,12 @@
+crypto:
+    target: dev
+    outputs:
+        dev:
+            # dbname: postgres
+            database: postgres
+            schema: dm_crypto
+            host: postgres
+            password: postgres
+            port: 5439
+            type: postgres
+            user: postgres

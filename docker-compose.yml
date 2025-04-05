@@ -90,6 +90,13 @@ services:
     networks:
       - crypto-net
 
+  dagster:
+    build: ./dagster
+    container_name: dagster
+    restart: always
+    networks:
+      - crypto-net
+
 volumes:
   postgres_data:
 
