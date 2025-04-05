@@ -40,7 +40,7 @@ def main(symbol: str):
             except WebSocketConnectionClosedException:
                 print("Conexão WebSocket fechada. Tentando reconectar...")
                 ws = create_connection(
-                    f"wss://stream.binance.com:9443/ws/{symbol}@trade"
+                    f"wss://stream.binance.com:9443/ws/{symbol}@ticker"
                 )
             except Exception as e:
                 print(f"Erro durante envio ou recebimento: {str(e)}")
