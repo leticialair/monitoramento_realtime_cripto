@@ -90,10 +90,42 @@ services:
     networks:
       - crypto-net
 
-  dagster:
-    build: ./dagster
-    container_name: dagster
+  airflow-init:
+    image: apache/airflow:2.8.0
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+    entrypoint: /bin/bash -c "airflow db init"
+    depends_on:
+      - postgres
+    networks:
+      - crypto-net
+
+  airflow-webserver:
+    image: apache/airflow:2.8.0
+    ports:
+      - "8080:8080"
     restart: always
+    depends_on:
+      - airflow-init
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+      AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+    command: webserver
+    networks:
+      - crypto-net
+
+  airflow-scheduler:
+    image: apache/airflow:2.8.0
+    restart: always
+    depends_on:
+      - airflow-webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+      AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+    command: scheduler
     networks:
       - crypto-net
 
