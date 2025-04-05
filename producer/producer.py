@@ -32,24 +32,34 @@ def get_connection(cripto_symbol):
     return ws
 
 
-def create_producer():
-    for _ in range(5):
+def create_producer(retries: int = 3):
+    for _ in range(retries):
         try:
-            return KafkaProducer(bootstrap_servers="kafka:9092")
-        except:
-            print("Waiting for Kafka...")
-            time.sleep(5)
-    raise Exception("Failed to connect to Kafka")
+            print("Tentando conectar ao Kafka...")  # <-- Add logging
+            producer = KafkaProducer(
+                bootstrap_servers="kafka:9092",
+                request_timeout_ms=3000,
+            )
+            print("Conexão com o Kafka realizada com sucesso!")
+            return producer
+        except Exception as e:
+            print(f"Erro ao tentar se conectar com o Kafka: {str(e)}")
+            time.sleep(2)
+    raise Exception(f"Kafka inacessível após {retries} tentativas.")
 
 
+print("Criando producer...")
 producer = create_producer()
+print("Producer criado!")
 
 while True:
     for symbol in LIST_SYMBOLS:
+        print(f"Iniciando símbolo {symbol}.")
         try:
-            ws = create_connection(
-                f"wss://stream.binance.com:9443/ws/{symbol.lower()}@trade"
-            )
+            # ws = create_connection(
+            #     f"wss://stream.binance.com:9443/ws/{symbol.lower()}@trade"
+            # )
+            ws = get_connection(symbol.lower())
             result = ws.recv()
             message = json.dumps({"symbol": symbol, "data": json.loads(result)}).encode(
                 "utf-8"
