@@ -27,9 +27,10 @@ def create_db_connection():
 def create_consumer():
     for _ in range(5):
         try:
+            symbol = "btcusdt"
             return KafkaConsumer(
-                "cripto-topic",
-                bootstrap_servers=["kafka:9092"],
+                f"{symbol}-topic",
+                bootstrap_servers="kafka:9092",
                 auto_offset_reset="earliest",
                 api_version=(2, 0, 2),
             )
