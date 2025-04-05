@@ -44,17 +44,6 @@ def create_producer():
 
 producer = create_producer()
 
-# while True:
-#     symbol = "BTCUSDT"
-#     symbol = symbol.lower()
-#     ws = get_connection(symbol)
-#     result = ws.recv()
-#     message = result.encode("utf-8")
-#     producer.send("cripto-topic", message)
-#     producer.flush()
-#     print("Mensagem enviada ao tópico cripto-topic!", symbol, result)
-#     time.sleep(1)
-
 while True:
     for symbol in LIST_SYMBOLS:
         try:
@@ -62,9 +51,9 @@ while True:
                 f"wss://stream.binance.com:9443/ws/{symbol.lower()}@trade"
             )
             result = ws.recv()
-
-            message = {"symbol": symbol, "data": json.loads(result)}
-
+            message = json.dumps({"symbol": symbol, "data": json.loads(result)}).encode(
+                "utf-8"
+            )
             producer.send("cripto-topic", message)
             print(f"Enviado: {symbol}")
 
