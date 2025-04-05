@@ -24,10 +24,9 @@ def create_db_connection():
     raise Exception("Failed to connect to PostgreSQL")
 
 
-def create_consumer():
+def create_consumer(symbol: str):
     for _ in range(5):
         try:
-            symbol = "btcusdt"
             return KafkaConsumer(
                 f"{symbol}-topic",
                 bootstrap_servers="kafka:9092",
@@ -61,23 +60,30 @@ def save_message(conn, message):
         )
 
 
-pg_conn = create_db_connection()
-setup_database(pg_conn)
-consumer = create_consumer()
+def main(symbol: str):
+    print("Criando conexão com o postgres...")
+    pg_conn = create_db_connection()
+    setup_database(pg_conn)
+    print("Conexão com o postgres criada!")
 
-print("Consumer ready, waiting for messages...")
+    print("Criando consumer...")
+    consumer = create_consumer(symbol)
+    print("Consumer criado!")
 
-try:
-    for message in consumer:
-        try:
-            # Decodifica os bytes para string e depois para dict
-            decoded = message.value.decode("utf-8")
-            json_data = json.loads(decoded)
+    try:
+        for message in consumer:
+            try:
+                # Decodifica os bytes para string e depois para dict
+                decoded = message.value.decode("utf-8")
+                json_data = json.loads(decoded)
 
-            save_message(pg_conn, json_data)
-            print(f"Mensagem salva: {decoded}")
-        except Exception as e:
-            print(f"Error processando mensagem: {str(e)}")
-finally:
-    consumer.close()
-    pg_conn.close()
+                save_message(pg_conn, json_data)
+                print(f"Mensagem salva: {decoded}")
+            except Exception as e:
+                print(f"Error processando mensagem: {str(e)}")
+    finally:
+        consumer.close()
+        pg_conn.close()
+
+
+main("btcusdt")

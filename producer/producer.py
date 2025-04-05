@@ -19,8 +19,7 @@ def create_producer(retries: int = 10):
     raise Exception(f"Kafka inacessível após {retries} tentativas.")
 
 
-def main():
-    symbol = "btcusdt"
+def main(symbol: str):
     topic = f"{symbol}-topic"
 
     print("Criando producer...")
@@ -50,4 +49,4 @@ def main():
         print(f"Erro na conexão com WebSocket: {str(e)}")
 
 
-main()
+main("btcusdt")
