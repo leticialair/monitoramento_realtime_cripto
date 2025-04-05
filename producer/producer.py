@@ -29,7 +29,7 @@ def main(symbol: str):
 
     print(f"Conectando ao WebSocket da Binance para {symbol}...")
     try:
-        ws = create_connection(f"wss://stream.binance.com:9443/ws/{symbol}@trade")
+        ws = create_connection(f"wss://stream.binance.com:9443/ws/{symbol}@ticker")
         print("Conexão com WebSocket estabelecida.")
 
         while True:
