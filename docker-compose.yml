@@ -101,6 +101,7 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+      AIRFLOW__LOGGING__LOGGING_AUTHENTICATE: "False"
       _AIRFLOW_WWW_USER_USERNAME: admin
       _AIRFLOW_WWW_USER_PASSWORD: admin
     command: >
@@ -126,6 +127,7 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
       AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+      AIRFLOW__LOGGING__LOGGING_AUTHENTICATE: "False"
     command: webserver
     networks:
       - crypto-net
@@ -143,10 +145,11 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
       AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql+psycopg2://postgres:postgres@postgres:5432/postgres
+      AIRFLOW__LOGGING__LOGGING_AUTHENTICATE: "False"
     command: scheduler
     networks:
       - crypto-net
-      
+
 volumes:
   postgres_data:
 
