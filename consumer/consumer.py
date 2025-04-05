@@ -70,10 +70,14 @@ print("Consumer ready, waiting for messages...")
 try:
     for message in consumer:
         try:
-            save_message(pg_conn, message.value)
-            print(f"Saved message: {message.value}")
+            # Decodifica os bytes para string e depois para dict
+            decoded = message.value.decode("utf-8")
+            json_data = json.loads(decoded)
+
+            save_message(pg_conn, json_data)
+            print(f"Mensagem salva: {decoded}")
         except Exception as e:
-            print(f"Error processing message: {str(e)}")
+            print(f"Error processando mensagem: {str(e)}")
 finally:
     consumer.close()
     pg_conn.close()
