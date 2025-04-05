@@ -26,11 +26,11 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       # KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    healthcheck:
-      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
+    # healthcheck:
+    #   test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+    #   interval: 5s
+    #   timeout: 10s
+    #   retries: 10
     networks:
       - crypto-net
 
@@ -38,8 +38,8 @@ services:
     build: ./producer
     container_name: producer
     depends_on:
-      kafka:
-        condition: service_healthy
+      - kafka
+        # condition: service_healthy
     volumes:
       - ./producer:/app
     # restart: unless-stopped
@@ -50,8 +50,8 @@ services:
     build: ./consumer
     container_name: consumer
     depends_on:
-      kafka:
-        condition: service_healthy
+      - kafka
+        # condition: service_healthy
     volumes:
       - ./consumer:/app
     # restart: unless-stopped

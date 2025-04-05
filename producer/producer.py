@@ -1,35 +1,6 @@
-# import json
 import time
 from kafka import KafkaProducer
-from websocket import create_connection
-
-LIST_SYMBOLS = [
-    "BTCUSDT",  # Bitcoin
-    "ETHUSDT",  # Ethereum
-    "BNBUSDT",  # Binance Coin
-    "XRPUSDT",  # Ripple
-    "ADAUSDT",  # Cardano
-    "DOGEUSDT",  # Dogecoin
-    "SOLUSDT",  # Solana
-    "MATICUSDT",  # Polygon
-    "DOTUSDT",  # Polkadot
-    "LTCUSDT",  # Litecoin
-    "SHIBUSDT",  # Shiba Inu
-    "TRXUSDT",  # Tron
-    "AVAXUSDT",  # Avalanche
-    "LINKUSDT",  # Chainlink
-    "ATOMUSDT",  # Cosmos
-    "UNIUSDT",  # Uniswap
-    "XLMUSDT",  # Stellar
-    "FILUSDT",  # Filecoin
-    "ETCUSDT",  # Ethereum Classic
-    "XMRUSDT",  # Monero
-]
-
-
-def get_connection(cripto_symbol):
-    ws = create_connection(f"wss://stream.binance.com:9443/ws/{cripto_symbol}@ticker")
-    return ws
+from websocket import create_connection, WebSocketConnectionClosedException
 
 
 def create_producer(retries: int = 10):
@@ -38,8 +9,7 @@ def create_producer(retries: int = 10):
             print("Tentando conectar ao Kafka...")
             producer = KafkaProducer(
                 bootstrap_servers="kafka:9092",
-                # api_version=(2, 0, 2),
-                # request_timeout_ms=10000,
+                value_serializer=lambda v: v.encode("utf-8"),
             )
             print("Conexão com o Kafka realizada com sucesso!")
             return producer
@@ -49,34 +19,35 @@ def create_producer(retries: int = 10):
     raise Exception(f"Kafka inacessível após {retries} tentativas.")
 
 
-print("Criando producer...")
-producer = create_producer()
-print("Producer criado!")
-
-while True:
+def main():
     symbol = "btcusdt"
-    ws = create_connection(f"wss://stream.binance.com:9443/ws/{symbol}@trade")
-    result = ws.recv()
-    message = result.encode("utf-8")
-    producer.send("cripto-topic", message)
-    print(f"Enviado: {symbol}")
-    time.sleep(10)
+    topic = f"{symbol}-topic"
 
-    # for symbol in LIST_SYMBOLS:
-    #     print(f"Iniciando símbolo {symbol}.")
-    #     try:
-    #         # ws = create_connection(
-    #         #     f"wss://stream.binance.com:9443/ws/{symbol.lower()}@trade"
-    #         # )
-    #         ws = get_connection(symbol.lower())
-    #         result = ws.recv()
-    #         message = json.dumps({"symbol": symbol, "data": json.loads(result)}).encode(
-    #             "utf-8"
-    #         )
-    #         producer.send("cripto-topic", message)
-    #         print(f"Enviado: {symbol}")
+    print("Criando producer...")
+    producer = create_producer()
+    print("Producer criado!")
 
-    #     except Exception as e:
-    #         print(f"Erro com {symbol}: {str(e)}")
+    print(f"Conectando ao WebSocket da Binance para {symbol}...")
+    try:
+        ws = create_connection(f"wss://stream.binance.com:9443/ws/{symbol}@trade")
+        print("Conexão com WebSocket estabelecida.")
 
-    #     time.sleep(5)  # Intervalo entre símbolos
+        while True:
+            try:
+                result = ws.recv()
+                producer.send(topic, result)
+                print(f"Enviado para o Kafka: {result[:60]}...")
+            except WebSocketConnectionClosedException:
+                print("Conexão WebSocket fechada. Tentando reconectar...")
+                ws = create_connection(
+                    f"wss://stream.binance.com:9443/ws/{symbol}@trade"
+                )
+            except Exception as e:
+                print(f"Erro durante envio ou recebimento: {str(e)}")
+                time.sleep(5)
+
+    except Exception as e:
+        print(f"Erro na conexão com WebSocket: {str(e)}")
+
+
+main()
