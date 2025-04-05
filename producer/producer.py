@@ -1,4 +1,4 @@
-import json
+# import json
 import time
 from kafka import KafkaProducer
 from websocket import create_connection
@@ -32,19 +32,20 @@ def get_connection(cripto_symbol):
     return ws
 
 
-def create_producer(retries: int = 3):
+def create_producer(retries: int = 10):
     for _ in range(retries):
         try:
-            print("Tentando conectar ao Kafka...")  # <-- Add logging
+            print("Tentando conectar ao Kafka...")
             producer = KafkaProducer(
                 bootstrap_servers="kafka:9092",
-                request_timeout_ms=3000,
+                # api_version=(2, 0, 2),
+                # request_timeout_ms=10000,
             )
             print("Conexão com o Kafka realizada com sucesso!")
             return producer
         except Exception as e:
             print(f"Erro ao tentar se conectar com o Kafka: {str(e)}")
-            time.sleep(2)
+            time.sleep(5)
     raise Exception(f"Kafka inacessível após {retries} tentativas.")
 
 
@@ -53,21 +54,29 @@ producer = create_producer()
 print("Producer criado!")
 
 while True:
-    for symbol in LIST_SYMBOLS:
-        print(f"Iniciando símbolo {symbol}.")
-        try:
-            # ws = create_connection(
-            #     f"wss://stream.binance.com:9443/ws/{symbol.lower()}@trade"
-            # )
-            ws = get_connection(symbol.lower())
-            result = ws.recv()
-            message = json.dumps({"symbol": symbol, "data": json.loads(result)}).encode(
-                "utf-8"
-            )
-            producer.send("cripto-topic", message)
-            print(f"Enviado: {symbol}")
+    symbol = "btcusdt"
+    ws = create_connection(f"wss://stream.binance.com:9443/ws/{symbol}@trade")
+    result = ws.recv()
+    message = result.encode("utf-8")
+    producer.send("cripto-topic", message)
+    print(f"Enviado: {symbol}")
+    time.sleep(10)
 
-        except Exception as e:
-            print(f"Erro com {symbol}: {str(e)}")
+    # for symbol in LIST_SYMBOLS:
+    #     print(f"Iniciando símbolo {symbol}.")
+    #     try:
+    #         # ws = create_connection(
+    #         #     f"wss://stream.binance.com:9443/ws/{symbol.lower()}@trade"
+    #         # )
+    #         ws = get_connection(symbol.lower())
+    #         result = ws.recv()
+    #         message = json.dumps({"symbol": symbol, "data": json.loads(result)}).encode(
+    #             "utf-8"
+    #         )
+    #         producer.send("cripto-topic", message)
+    #         print(f"Enviado: {symbol}")
 
-        time.sleep(5)  # Intervalo entre símbolos
+    #     except Exception as e:
+    #         print(f"Erro com {symbol}: {str(e)}")
+
+    #     time.sleep(5)  # Intervalo entre símbolos
