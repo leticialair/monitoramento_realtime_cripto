@@ -1,3 +1,4 @@
+import threading
 import time
 from kafka import KafkaConsumer
 import psycopg2
@@ -86,23 +87,34 @@ def main(symbol: str):
         pg_conn.close()
 
 
-main("btcusdt")
-main("ethusdt")
-main("bnbusdt")
-main("xrpusdt")
-main("adausdt")
-main("dogeusdt")
-main("solusdt")
-main("maticusdt")
-main("dotusdt")
-main("ltcusdt")
-main("shibusdt")
-main("trxusdt")
-main("avaxusdt")
-main("linkusdt")
-main("atomusdt")
-main("uniusdt")
-main("xlmusdt")
-main("filusdt")
-main("etcusdt")
-main("xmrusdt")
+symbols = [
+    "btcusdt",
+    "ethusdt",
+    "bnbusdt",
+    "xrpusdt",
+    "adausdt",
+    "dogeusdt",
+    "solusdt",
+    "maticusdt",
+    "dotusdt",
+    "ltcusdt",
+    "shibusdt",
+    "trxusdt",
+    "avaxusdt",
+    "linkusdt",
+    "atomusdt",
+    "uniusdt",
+    "xlmusdt",
+    "filusdt",
+    "etcusdt",
+    "xmrusdt",
+]
+
+threads = []
+for symbol in symbols:
+    t = threading.Thread(target=main, args=(symbol,))
+    t.start()
+    threads.append(t)
+
+for t in threads:
+    t.join()
