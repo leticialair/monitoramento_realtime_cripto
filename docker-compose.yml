@@ -150,6 +150,21 @@ services:
     networks:
       - crypto-net
 
+  metabase:
+    image: metabase/metabase:v0.50.10
+    ports:
+      - "3003:3000"
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: postgres
+      MB_DB_PORT: 5432
+      MB_DB_USER: postgres
+      MB_DB_PASS: postgres
+      MB_DB_HOST: postgres
+    restart: always
+    networks:
+      - crypto-net
+
 volumes:
   postgres_data:
 
